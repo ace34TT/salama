@@ -1,0 +1,22 @@
+.service-container {
+    height: 100vh;
+    color: rgb(255, 255, 255);
+}
+
+.service-container h1 {
+    font-size: 75px;
+}
+
+.service-container h2 {
+    font-size: 20pxpx;
+}
+
+.service-container ul {
+    font-size: 25px;
+    font-size: 15px;
+    color: white;
+}
+
+.service-container p {
+    color: white;
+}

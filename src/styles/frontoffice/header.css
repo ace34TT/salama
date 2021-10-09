@@ -1,0 +1,10 @@
+.header {
+    background-image: url(../../assets/images/1189501.jpg);
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-size: cover;
+    background-color: #3f3f3f85;
+    color: rgb(62, 71, 77);
+    height: 100vh;
+}

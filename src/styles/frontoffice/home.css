@@ -1,0 +1,18 @@
+.home-tsx {
+    color: white;
+}
+
+img {
+    height: 250px;
+    width: 300px;
+}
+
+.home-tsx h1 {
+    color: white;
+    font-size: 100px;
+}
+
+.home-tsx p {
+    color: white;
+    font-size: 15px;
+}
