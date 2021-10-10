@@ -14,7 +14,7 @@ import Typography from '@mui/material/Typography';
 
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
-import { withRouter, useHistory } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 
 function Copyright(props: any) {''
     return (
@@ -83,6 +83,7 @@ export default function SignInSide() {
                                 id="standard-password-input"
                                 label="Username"
                                 type="text"
+                                value={"doctor@example.com"}
                                 fullWidth
                                 autoComplete="current-password"
                                 variant="standard"
@@ -93,6 +94,7 @@ export default function SignInSide() {
                                 label="Password"
                                 type="password"
                                 fullWidth
+                                value={"doctor123456"}
                                 autoComplete="current-password"
                                 variant="standard"
                             />

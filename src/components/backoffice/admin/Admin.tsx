@@ -21,10 +21,11 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import AllInboxIcon from '@mui/icons-material/AllInbox';
 
 
-import { BrowserRouter, Route, Switch, Link } from 'react-router-dom';
+// import { BrowserRouter, Route, Switch, Link } from 'react-router-dom';
 
 import Dashboard from './Dashboard'
-import Doctor from './Doctor';
+import Doctor, { EDoctorType } from './Doctor';
+import { useHistory } from 'react-router';
 
 const drawerWidth = 240;
 
@@ -33,8 +34,10 @@ interface Props {
 }
 
 export default function ResponsiveDrawer(props: Props) {
-    const { window } = props;
+    // const { window } = props;
     const [mobileOpen, setMobileOpen] = React.useState(false);
+    const [curentPageContent, setCurentPageContent] = React.useState(0);
+    const history = useHistory()
 
     const handleDrawerToggle = () => {
         setMobileOpen(!mobileOpen);
@@ -45,6 +48,7 @@ export default function ResponsiveDrawer(props: Props) {
             // liste nouveaux docteur et patient
             name: "Dashboard",
             url: "admin/doctors",
+            oc: () => { setCurentPageContent(0) },
             icon: <DashboardIcon />
         }
     ]
@@ -53,11 +57,13 @@ export default function ResponsiveDrawer(props: Props) {
         {
             name: "Doctors",
             url: "admin/doctors/list",
+            oc: () => { setCurentPageContent(1) },
             icon: <FormatListBulletedIcon />
         },
         {
             name: "Request",
             url: "admin/doctor/request",
+            oc: () => { setCurentPageContent(2) },
             icon: <AllInboxIcon />
         }
     ]
@@ -66,6 +72,7 @@ export default function ResponsiveDrawer(props: Props) {
         {
             name: "Customer",
             url: "admin/custormer",
+            oc: () => { setCurentPageContent(3) },
             icon: <FormatListBulletedIcon />
         }
     ]
@@ -74,6 +81,7 @@ export default function ResponsiveDrawer(props: Props) {
         {
             name: "Logout",
             url: "admin/logout",
+            oc: () => { history.push("/admin/login") },
             icon: <LogoutIcon />
         }
     ]
@@ -85,7 +93,7 @@ export default function ResponsiveDrawer(props: Props) {
             <List>
                 {dashboardLink.map((navItem) => (
 
-                    <ListItem button key={navItem.name}>
+                    <ListItem onClick={navItem.oc} button key={navItem.name}>
                         <ListItemIcon>
                             {navItem.icon}
                         </ListItemIcon>
@@ -97,7 +105,7 @@ export default function ResponsiveDrawer(props: Props) {
             <Divider />
             <List>
                 {doctorLink.map((navItem) => (
-                    <ListItem button key={navItem.name}>
+                    <ListItem onClick={navItem.oc} button key={navItem.name}>
                         <ListItemIcon>
                             {navItem.icon}
                         </ListItemIcon>
@@ -108,7 +116,7 @@ export default function ResponsiveDrawer(props: Props) {
             <Divider />
             <List>
                 {customerLink.map((navItem) => (
-                    <ListItem button key={navItem.name}>
+                    <ListItem onClick={navItem.oc} button key={navItem.name}>
                         <ListItemIcon>
                             {navItem.icon}
                         </ListItemIcon>
@@ -119,7 +127,7 @@ export default function ResponsiveDrawer(props: Props) {
             <Divider />
             <List>
                 {adminLink.map((navItem) => (
-                    <ListItem button key={navItem.name}>
+                    <ListItem onClick={navItem.oc} button key={navItem.name}>
                         <ListItemIcon>
                             {navItem.icon}
                         </ListItemIcon>
@@ -130,7 +138,14 @@ export default function ResponsiveDrawer(props: Props) {
         </div >
     );
 
-    const container = window !== undefined ? () => window().document.body : undefined;
+    // const container = window !== undefined ? () => window().document.body : undefined;
+
+    const contentSwitcher = [
+        <Dashboard />,
+        <Doctor type={EDoctorType.doctor} />,
+        <Doctor type={EDoctorType.request} />,
+        <Doctor type={EDoctorType.customer} />
+    ]
 
     return (
         <Box sx={{ display: 'flex' }}>
@@ -176,19 +191,7 @@ export default function ResponsiveDrawer(props: Props) {
             </Box>
             <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
                 <Toolbar />
-                <BrowserRouter >
-                    <Switch>
-                        <Route exact path="/admin/dashboard">
-                            <Dashboard />
-                        </Route>
-                        <Route exact path="/admin/doctor">
-                            <Doctor />
-                        </Route>
-                        <Route exact path="/admin/request">
-                            <Doctor />
-                        </Route>
-                    </Switch>
-                </BrowserRouter>
+                {contentSwitcher[curentPageContent]}
             </Box>
         </Box>
     );

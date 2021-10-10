@@ -19,13 +19,35 @@ import DashboardIcon from '@mui/icons-material/Dashboard';
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import LogoutIcon from '@mui/icons-material/Logout';
 import AllInboxIcon from '@mui/icons-material/AllInbox';
-
-
-import { BrowserRouter, Route, Switch, Link } from 'react-router-dom';
+import ListIcon from '@mui/icons-material/List';
+import Badge from '@mui/material/Badge';
 
 import Dashboard from './Dashboard';
-import Doctor from './Doctor';
 import Notification from './Notification';
+import { useHistory } from 'react-router';
+import { ClientLists } from './ClientLIst';
+import { OnshotGetNotification, RecurentGetNotification } from '../../../Services/getNotification';
+
+export interface INotifData {
+    id: {
+        max: number
+    },
+    information: {
+        adresse: string,
+        dateDeNaissance: Date
+        dateHeure: Date
+        dateHeureConfirmation: Date
+        idEtablissement: string
+        idPersonne: string
+        idReservation: number
+        mail: string
+        motDePasse: string
+        nom: string
+        prenom: string
+        sexe: string
+        type: string
+    }
+}
 
 const drawerWidth = 240;
 
@@ -33,9 +55,36 @@ interface Props {
     window?: () => Window;
 }
 
+
 export default function ResponsiveDrawer(props: Props) {
-    const { window } = props;
     const [mobileOpen, setMobileOpen] = React.useState(false);
+    const [curentPageContent, setCurentPageContent] = React.useState(0);
+    const notifData = React.useRef({ oldId: -1, newId: -1 })
+    const [haveNotif, setHaveNotif] = React.useState(false)
+
+    const history = useHistory()
+
+    const curentNotifData = notifData.current
+
+
+    React.useEffect(() => {
+        const handleDataChange = (newData: INotifData) => {
+            curentNotifData.newId = newData.id.max
+            if (curentNotifData.oldId !== curentNotifData.newId && !haveNotif) setHaveNotif(true)
+        }
+
+        OnshotGetNotification("appointment/lastId/e1").then((data) => {
+            if (data && data.id) {
+                curentNotifData.newId = data.id.max
+                curentNotifData.oldId = data.id.max
+                setTimeout(() => {
+                    RecurentGetNotification("appointment/lastId/e1", handleDataChange)
+                }, 3000)
+            }
+        })
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
 
     const handleDrawerToggle = () => {
         setMobileOpen(!mobileOpen);
@@ -45,6 +94,7 @@ export default function ResponsiveDrawer(props: Props) {
         {
             name: "Dashboard",
             url: "doctor/dashboard",
+            oc: () => { setCurentPageContent(0) },
             icon: <DashboardIcon />
         }
     ]
@@ -53,6 +103,7 @@ export default function ResponsiveDrawer(props: Props) {
         {
             name: "Demandes",
             url: "admin/doctor/request",
+            oc: () => { setCurentPageContent(1) },
             icon: <AllInboxIcon />
         }
     ]
@@ -61,6 +112,7 @@ export default function ResponsiveDrawer(props: Props) {
         {
             name: "Clients",
             url: "admin/custormer",
+            oc: () => { setCurentPageContent(2) },
             icon: <FormatListBulletedIcon />
         }
     ]
@@ -69,6 +121,7 @@ export default function ResponsiveDrawer(props: Props) {
         {
             name: "Logout",
             url: "admin/logout",
+            oc: () => { history.push("/doctor/login") },
             icon: <LogoutIcon />
         }
     ]
@@ -80,7 +133,7 @@ export default function ResponsiveDrawer(props: Props) {
             <List>
                 {dashboardLink.map((navItem) => (
 
-                    <ListItem button key={navItem.name}>
+                    <ListItem onClick={navItem.oc} button key={navItem.name}>
                         <ListItemIcon>
                             {navItem.icon}
                         </ListItemIcon>
@@ -92,7 +145,7 @@ export default function ResponsiveDrawer(props: Props) {
             <Divider />
             <List>
                 {doctorLink.map((navItem) => (
-                    <ListItem button key={navItem.name}>
+                    <ListItem onClick={navItem.oc} button key={navItem.name}>
                         <ListItemIcon>
                             {navItem.icon}
                         </ListItemIcon>
@@ -103,7 +156,7 @@ export default function ResponsiveDrawer(props: Props) {
             <Divider />
             <List>
                 {customerLink.map((navItem) => (
-                    <ListItem button key={navItem.name}>
+                    <ListItem onClick={navItem.oc} button key={navItem.name}>
                         <ListItemIcon>
                             {navItem.icon}
                         </ListItemIcon>
@@ -114,7 +167,7 @@ export default function ResponsiveDrawer(props: Props) {
             <Divider />
             <List>
                 {adminLink.map((navItem) => (
-                    <ListItem button key={navItem.name}>
+                    <ListItem onClick={navItem.oc} button key={navItem.name}>
                         <ListItemIcon>
                             {navItem.icon}
                         </ListItemIcon>
@@ -125,7 +178,11 @@ export default function ResponsiveDrawer(props: Props) {
         </div >
     );
 
-    const container = window !== undefined ? () => window().document.body : undefined;
+    const contentSwitcher = [
+        <Dashboard />,
+        <Notification />,
+        <ClientLists />
+    ]
 
     return (
         <Box sx={{ display: 'flex' }}>
@@ -147,9 +204,15 @@ export default function ResponsiveDrawer(props: Props) {
                     >
                         <MenuIcon />
                     </IconButton>
-                    <Typography variant="h6" noWrap component="div">
+                    <Typography style={{ flex: 1, textAlign: "start" }} variant="h6" noWrap component="div">
                         Espace Docteur
                     </Typography>
+                    <IconButton onClick={() => { setCurentPageContent(1); curentNotifData.oldId = curentNotifData.newId; setHaveNotif(false) }} style={{ marginRight: 16 }} component="span">
+                        {haveNotif && <Badge badgeContent={1} color="error">
+                            <ListIcon style={{ color: "#fff" }} />
+                        </Badge>}
+                        {!haveNotif && <ListIcon style={{ color: "#fff" }} />}
+                    </IconButton>
                 </Toolbar>
             </AppBar>
             <Box
@@ -171,16 +234,7 @@ export default function ResponsiveDrawer(props: Props) {
             </Box>
             <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
                 <Toolbar />
-                <BrowserRouter >
-                    <Switch>
-                        <Route exact path="/doctor/dashboard">
-                            <Dashboard />
-                        </Route>
-                        <Route exact path="/doctor/notification">
-                            <Notification />
-                        </Route>
-                    </Switch>
-                </BrowserRouter>
+                {contentSwitcher[curentPageContent]}
             </Box>
         </Box>
     );

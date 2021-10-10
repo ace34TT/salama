@@ -9,10 +9,10 @@ import Link from '@mui/material/Link';
 import Paper from '@mui/material/Paper';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import SupervisedUserCircleIcon from '@mui/icons-material/SupervisedUserCircle';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { useHistory } from 'react-router';
 
 
 
@@ -32,6 +32,8 @@ function Copyright(props: any) {
 const theme = createTheme();
 
 export default function SignInSide() {
+    const history = useHistory()
+
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
@@ -40,6 +42,8 @@ export default function SignInSide() {
             email: data.get('email'),
             password: data.get('password'),
         });
+
+        history.push("/admin/dashboard")
     };
 
     return (
@@ -80,6 +84,7 @@ export default function SignInSide() {
                             <TextField
                                 id="standard-password-input"
                                 label="Username"
+                                value={"admin@example.com"}
                                 type="text"
                                 fullWidth
                                 autoComplete="current-password"
@@ -90,6 +95,7 @@ export default function SignInSide() {
                                 id="standard-password-input"
                                 label="Password"
                                 type="password"
+                                value="admin123456"
                                 fullWidth
                                 autoComplete="current-password"
                                 variant="standard"
